@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>窗口标题</title>
+    </head>
+    <body>
+        <div style="padding: 60px; font-size: 38px; font-weight: bold; text-align: center;">
+            Hello World
+        </div>
+        <script src="objRender.js"></script>
+        <script src="jQuery.js"></script>
+        <script>
+            window.$ = window.jQuery = require('./jQuery');
+            console.log($);
+            alert(window.objRender.key);
+
+            let objRender2 = require('./objRender2');
+            alert(objRender2.key);
+
+            
+
+        </script>
+    </body>
+</html>
