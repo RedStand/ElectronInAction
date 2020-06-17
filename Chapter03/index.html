@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title>窗口标题</title>
+    </head>
+    <body>
+        <div style="padding: 60px; font-size: 38px; font-weight: bold; text-align: center;">
+            <button id = "openDevToolsBtn">打开开发者工具</button>
+            <br>
+            <button id="makeNewWindow">打开新窗口</button>
+            <br>
+            <button id="makeNewWindow2">打开另外的新窗口</button>
+            <br>
+            <button id="sendMsg1">向主进程发送消息1</button>
+            <br>
+            <button id="sendMsg2">向主进程发送消息2</button>
+            <br>
+            <button id="sendMsg3">向渲染进程发送消息</button>
+
+        </div>
+        <script>
+            let {remote} = require('electron');
+            document.querySelector('#openDevToolsBtn').addEventListener('click' , ()=>{
+                remote.getCurrentWindow().webContents.openDevTools();
+            })
+
+            //渲染进程访问主进程1
+            let win = null;
+            document.querySelector('#makeNewWindow').addEventListener('click' , ()=>{
+                win = new remote.BrowserWindow({
+                    webPreferences : {nodeIntegration : true}
+                });
+                win.loadFile('index.html')
+            })
+
+            //渲染进程访问主进程2
+            let mainModel = remote.require('./mainModel');
+            let win2 = null;
+            document.querySelector('#makeNewWindow2').addEventListener('click' , ()=>{
+                win2 = mainModel.makeWin();
+                win2 .loadFile('index2.html');
+            })
+
+            //发送消息手段1  只能有一个渲染进程接到消息
+            //渲染进程向主进程发送消息
+            let {ipcRenderer} = require('electron');
+            document.querySelector('#sendMsg1').addEventListener('click' , ()=>{
+                ipcRenderer.send('msg_render2main' , {name: 'param1'} , {name : 'param2'});
+            })
+
+            //主进程向渲染进程发送消息
+            ipcRenderer.on('msg_main2render' , (event , param1 , param2)=>{
+                console.log(param1);
+                console.log(param2);
+                console.log(event.sender);
+            })
+            
+            //发送消息手段2
+            document.querySelector('#sendMsg2').addEventListener('click' , ()=>{
+                console.log('send');
+                ipcRenderer.send('msg2_render2main' , {name: 'param1'} , {name : 'param2'});
+            })
+
+            ipcRenderer.on('msg2_main2render' , (event , param1 , param2)=>{
+                console.log(param1);
+                console.log(param2);
+                console.log(event.sender);
+            })
+
+            //向渲染进程发送消息
+            document.querySelector('#sendMsg3').addEventListener('click' , _=>{
+                console.log(win);
+                ipcRenderer.sendTo(win.webContents.id , 'msg_render2render' , {name:'param1' } , {name :'param2'} , 4);
+            })
+
+            ipcRenderer.on('msg_render2render' , (event , param1 , param2 , val) =>{
+                console.log(param1);
+                console.log(param2);
+                console.log(val);
+            } )
+
+        </script>
+    </body>
+</html>
