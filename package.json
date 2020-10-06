@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/RedStand/ElectronInAction#readme",
   "devDependencies": {
-    "electron": "^9.0.4"
+    "electron": "^9.3.1"
   }
 }
